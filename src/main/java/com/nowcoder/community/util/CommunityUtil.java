@@ -44,7 +44,18 @@ public class CommunityUtil {
     public static String getJSONString(int code) {
         return getJSONString(code, null, null);
     }
-
+    // 解析 JSON 字符串为 Java 对象
+    public static <T> T parseJson(String json, Class<T> clazz) {
+        if (StringUtils.isBlank(json)) {
+            return null;
+        }
+        try {
+            return JSONObject.parseObject(json, clazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     public static void main(String[] args) {
         Map<String, Object> map = new HashMap<>();
         map.put("name", "zhangsan");

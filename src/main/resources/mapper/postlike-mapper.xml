@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nowcoder.community.dao.PostLikeMapper">
+
+    <!-- 插入新的点赞记录 -->
+    <insert id="insertPostLike">
+        INSERT INTO post_likes (post_id, user_id, create_time)
+        VALUES (#{postId}, #{userId}, #{createTime})
+    </insert>
+
+    <!-- 取消点赞（软删除，更新status为0） -->
+    <delete id="cancelPostLike">
+        DELETE FROM post_likes
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </delete>
+
+    <!-- 查询某个帖子的点赞数 -->
+    <select id="countPostLikes" resultType="int">
+        SELECT COUNT(*) FROM post_likes
+        WHERE post_id = #{postId}
+    </select>
+
+    <select id="findUserIdsWhoLiked" resultType="int">
+        SELECT user_id
+        FROM post_likes
+        WHERE post_id = #{postId}
+    </select>
+
+    <!-- 查询某个用户是否对帖子点赞 -->
+    <select id="isPostLiked" resultType="boolean">
+        SELECT COUNT(*)
+        FROM post_likes
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+    </select>
+
+</mapper>
