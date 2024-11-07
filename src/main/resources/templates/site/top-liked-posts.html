@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Top Liked Posts</title>
+</head>
+<body>
+<h1>Top 10 Liked Posts</h1>
+<table>
+    <tr>
+        <th>Rank</th>
+        <th>Title</th>
+        <th>Likes</th>
+        <th>Author</th>
+    </tr>
+    <tr th:each="post, iterStat : ${topLikedPosts}">
+        <td th:text="${iterStat.index + 1}"></td>
+        <td><a th:href="@{/discuss/detail/{id}(id=${post.post.id})}" th:text="${post.post.title}">Post Title</a></td>
+        <td th:text="${post.likeCount}">0</td>
+        <td th:text="${post.user.username}">Author Name</td>
+    </tr>
+</table>
+</body>
+</html>

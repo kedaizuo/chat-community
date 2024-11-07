@@ -144,4 +144,38 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    /**
+     * 获取点赞数前10的帖子页面
+     */
+    @RequestMapping(path = "/topLikedPosts", method = RequestMethod.GET)
+    public String getTopLikedPostsPage(Model model) {
+        // 获取前10名点赞数最高的帖子
+        List<Map<String, Object>> topLikedPosts = discussPostService.findTopLikedPosts(10);
+
+        // 封装帖子的详细信息（如帖子内容、用户信息）
+        List<Map<String, Object>> topLikedPostDetails = new ArrayList<>();
+        for (Map<String, Object> postInfo : topLikedPosts) {
+            Integer postId = (Integer) postInfo.get("postId");
+            DiscussPost post = discussPostService.findDiscussPostById(postId);
+            if (post != null) {
+                Map<String, Object> detail = new HashMap<>();
+                detail.put("post", post);
+                detail.put("likeCount", postInfo.get("likeCount"));
+                User user = userService.findUserById(post.getUserId());
+                detail.put("user", user);
+                topLikedPostDetails.add(detail);
+            }
+        }
+        model.addAttribute("topLikedPosts", topLikedPostDetails);
+
+        return "/site/top-liked-posts";
+    }
+
+    @RequestMapping(path = "/initTopPosts", method = RequestMethod.GET)
+    @ResponseBody
+    public String initTopPosts() {
+        discussPostService.refreshTopPosts();
+        return "Top posts initialized in Redis!";
+    }
+
 }

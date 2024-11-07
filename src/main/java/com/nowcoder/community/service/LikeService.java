@@ -1,6 +1,7 @@
 package com.nowcoder.community.service;
 
 import com.nowcoder.community.dao.PostLikeMapper;
+import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,9 @@ import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.nowcoder.community.util.CommunityConstant.ENTITY_TYPE_POST;
 
 @Service
 public class LikeService {
@@ -26,6 +27,9 @@ public class LikeService {
 
     @Autowired
     private PostLikeMapper postLikeMapper;
+
+    @Autowired
+    private DiscussPostService discussPostService;
 
     // 点赞
     public void like(int userId, int entityType, int entityId, int entityUserId) {
@@ -74,20 +78,16 @@ public class LikeService {
     public long findEntityLikeCount(int entityType, int entityId) {
         String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);
         Long likeCount;
-        System.out.println("*************** into func");
 
         // 先从 Redis 中查询
         Boolean hasKey = redisTemplate.hasKey(entityLikeKey);
-        System.out.println("*************** finsih redis look up");
         if (hasKey != null && hasKey) {
             // 如果 Redis 中存在该 key，获取点赞数
             likeCount = redisTemplate.opsForSet().size(entityLikeKey)-1;
-            System.out.println("redis like count="+likeCount);
         }
         else{
             likeCount = (long) postLikeMapper.countPostLikes(entityId);
-            System.out.println("*************** from database");
-            System.out.println("like count="+likeCount);
+
             redisTemplate.opsForSet().add(entityLikeKey, -1);
             // 如果数据库中有点赞记录，将其缓存到 Redis 中
             if (likeCount > 0) {
